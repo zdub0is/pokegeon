@@ -68,9 +68,9 @@ dungeon.dungeon_objective = DungeonObjectiveType.OBJECTIVE_STORY;
         // #00FFFF = secondary terrain
         console.log(CreateMapString(this.dungeonMap))
         let gridResult = renderGrid(this.dungeonMap);
-        console.log(gridResult.map((row) => 
-            row.map((cell) => cell.toString().padStart(3, '0')).join(' ')
-        ).join('\n'));
+        // console.log(gridResult.map((row) => 
+        //     row.map((cell) => cell.toString().padStart(3, '0')).join(' ')
+        // ).join('\n'));
         // for(let i = 1; i <= 144; i++) {
         //     // render spritesheet, 18 per line
         //     this.add.image(i % 18 * 24 + 120, (24 * Math.ceil(i/18)), 'test', i-1);

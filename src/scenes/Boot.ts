@@ -18,7 +18,7 @@ export class Boot extends Scene
         this.load.image('background', 'assets/bg.png');
         this.load.spritesheet({
             key: 'test',
-            url: 'assets/tileset_71.png',
+            url: 'assets/tileset_23.png',
             frameConfig: { frameWidth: 24, frameHeight: 24 }
         });
         
