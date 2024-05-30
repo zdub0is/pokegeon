@@ -66,9 +66,11 @@ dungeon.dungeon_objective = DungeonObjectiveType.OBJECTIVE_STORY;
         // #00FF00 = kecleon
         // #FF69B4 = hidden stairs
         // #00FFFF = secondary terrain
-
+        console.log(CreateMapString(this.dungeonMap))
         let gridResult = renderGrid(this.dungeonMap);
-        console.log(gridResult)
+        console.log(gridResult.map((row) => 
+            row.map((cell) => cell.toString().padStart(3, '0')).join(' ')
+        ).join('\n'));
         // for(let i = 1; i <= 144; i++) {
         //     // render spritesheet, 18 per line
         //     this.add.image(i % 18 * 24 + 120, (24 * Math.ceil(i/18)), 'test', i-1);
@@ -76,7 +78,10 @@ dungeon.dungeon_objective = DungeonObjectiveType.OBJECTIVE_STORY;
         // }
         for (let i = 0; i < gridResult.length; i++) {
             for (let j = 0; j < gridResult[i].length; j++) {
-                this.add.image(i* 24 + 120, j * 24 + 70, 'test', gridResult[i][j]);
+                // console.log(this.dungeonMap[i][j].terrain_flags.terrain_type, i, j, gridResult[i][j]);
+                let offsetConst = this.dungeonMap[i][j].terrain_flags.terrain_type;
+                let offsetFactor = offsetConst > 0 ? offsetConst == 2 ? 6 : 12 : 0;
+                this.add.image(i* 24 + 120, j * 24 + 70, 'test', gridResult[i][j] + offsetFactor );
             }
         }
 

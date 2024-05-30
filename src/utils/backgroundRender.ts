@@ -1,255 +1,256 @@
 /**
  * This Util determines which background to render based on the surrounding tile assuming a normal tile set.
- * 
+ *
  */
 
-import { Tile } from 'dungeon-mystery'
+import { Tile } from "dungeon-mystery";
 
 // Define the tile types
 const WALL_TILE = 0;
 const FLOOR_TILE = 1;
 const SECONDARY_TERRAIN_TILE = 2;
 
-// Define the mapping of bitmasks to sprite indices
-const tileMap = {
-  0b00000000: 19, // Example tile with no neighbors
-  0b00000001: 1, // Example tile with a floor neighbor to the NW
-  0b10101000000: 20,
-  0b1000000: 77,
-  0b101000000: 20,
-  0b10000000000: 95,
-  0b10100000000: 20,
-  0b1010000: 37,
-  0b1010000000000: 1,
-  0b100000000000000: 108,
-  0b100000000000001: 18,
-  0b100000000000101: 18,
-  0b101: 18,
-  0b100: 90,
-  0b101000000000101: 0,
-  0b101000000000000: 1,
-  0b10100: 37,
-  0b101010000000101: 0,
-    0b101010000000000: 1,
-    0b1010100: 37,
-    0b101000000010101: 33,
-    0b101010101010101: 33,
-    0b10100000: 33,
-    0b101000000000001: 33,
-    0b100000000010101: 33,
-    0b10101: 33,
-    0b101100000010101: 33,
-    0b101001000010101: 33,
-    0b1000000010000: 33,
-    0b101010100000001: 33,
-    0b101010101: 33,
-    0b1000000000001: 33,
-    0b1000000010100: 33,
-    0b101000000010000: 33,
-    0b10001: 33,
-    0b10100000001: 33,
-    0b101000001: 33,
-    0b100000001: 33,
-    0b101010100001001: 33,
-    0b1000000101010101: 33,
-    0b110000101010101: 33,
-    
-0b1010101010000: 33,
-0b1010100000000: 33,
-0b101010000: 33,
-0b101010101000001: 33,
-0b10101010101: 33,
-0b101010100010001: 33,
-0b101010000010000: 33,
-0b1000001010100: 33,
-0b1000101010101: 33,
-0b101010100000101: 33,
-0b100000101010101: 33,
-0b1010101: 33,
-0b101000100010101: 33,
-0b101010000010101: 33,
-0b100000100000101: 33,
-0b101000001010101: 33,
-0b1010001: 33,
-0b101000100000000: 33,
-0b1000001010000: 33,
-0b1000100000000: 33,
-0b100000100000001: 33,
-0b10101000001: 33,
-0b100100000001: 33,
-0b1010101010100: 33,
-0b1010101010001: 33,
-0b101010101010000: 33,
-0b1010100100000: 33,
-0b10100100000001: 33,
-0b100101010101: 33,
-0b1010100110000001: 33,
-0b10000101010101: 33,
-0b1010100110100001: 33,
-0b1010100110101001: 33,
-0b1010000100101001: 33,
-0b1000000100001001: 33,
-0b100010000: 33,
-0b1010000010000: 33,
-0b100000101: 33,
-0b1000100000001: 33,
-0b110000001: 33,
-0b110100001: 33,
-0b10110101001: 33,
-0b1000010101001: 33,
-0b100110000101: 33,
-0b10010101100001: 33,
-0b1010100101010000: 33,
-0b1010110101000: 33,
-0b100000000: 33,
-0b101010001: 33,
-0b100000101000101: 33,
-0b101010100000000: 33,
-0b100010100000101: 33,
-0b101000110010101: 33,
-0b101011010010101: 33,
-0b101101010000001: 33,
-0b100101000001: 33,
-0b100010101000101: 33,
-0b100010110100101: 33,
-0b10101010010001: 33,
-0b101101000010000: 33,
-0b1100000010000: 33,
-0b1000000010001: 33,
-0b10000101010000: 33,
-0b1010101000000: 33,
-0b101000010010101: 33,
-0b101001000000001: 33,
-0b1010000010100: 33,
-0b101000010010000: 33,
-0b1001000010000: 33,
-0b1100000011000: 33,
-0b1000010011010: 33,
-0b1001001010010010: 33,
-0b1001101001010000: 33,
-0b1100110101000: 33,
-0b110000100101001: 33,
-0b1000000011000: 33,
-0b1000000010010: 33,
-0b1001000000010000: 33,
-0b10100010000: 33,
-0b1000010010000: 33,
-0b1100001010000: 33,
-0b1000100101000: 33,
-0b1000100000101: 33,
-0b100000100001001: 33,
-0b101010110000101: 33,
-0b100100110000001: 33,
-0b10010101010101: 33,
-0b101010101100001: 33,
-0b10010100100001: 33,
-0b100011000: 33,
-0b1010000011010: 33,
-0b1001000001010110: 33,
-0b1001000101010101: 33,
-0b101010100011001: 33,
-0b101010000011010: 33,
-0b1001000000010110: 33,
-0b1001000000001001: 33,
-0b10100000101: 33,
-0b100000010010101: 33,
-0b101100001010101: 33,
-0b101011000000101: 33,
-0b100000110100101: 33,
-0b110101001: 33,
-0b100110101001: 33,
-0b10000100101001: 33,
-0b100010100: 33,
-0b1010000000001: 33,
-0b101010100: 33,
-0b1010001010100: 33,
-0b1000100010001: 33,
-0b1000000000101: 33,
-0b100000101000001: 33,
-0b10101010001: 33,
-0b101010101010100: 33,
-0b1010110000000: 33,
-0b101010100100001: 33,
-0b101010000000001: 33,
-0b101010110000001: 33,
-0b101010110100001: 33,
-0b101010110101001: 33,
-0b101001010010101: 33,
-0b101101010010101: 33,
-0b101101010101001: 33,
-0b10000100000001: 33,
-0b1000000100000001: 33,
-0b1010010010100: 33,
-0b1001000000001: 33,
-0b1010000101011010: 33,
-0b1001010101010010: 33,
-0b1001010101010000: 33,
-0b1000010101010101: 33,
-0b1000000110000001: 33,
-0b100100010010: 33,
-0b1001010001010100: 33,
-0b10101100001: 33,
-0b10010100000101: 33,
-0b1000000011001: 33,
-0b101000000011010: 33,
-0b1001000000011010: 33,
-0b1001000101000001: 33,
-0b100000000010001: 33,
-0b101000001010100: 33,
+// Tile maps contains an array of if the tile is the same as the surrounding tiles
 
-
-
+// order isN, NE, E, SE, S, SW, W, NW,
+const tileMapOld = {
+  0: [false, false, false, true, true, true, false, false],
+  1: [false, false, false, true, true, true, true, true],
+  2: [false, false, false, false, false, true, true, true],
+  3: [false, false, false, true, false, true, false, false],
+  4: [false, false, false, true, false, false, false, true],
+  5: [false, false, false, false, false, true, false, true],
+  18: [false, true, true, true, true, true, false, false],
+  19: [true, true, true, true, true, true, true, true],
+  20: [true, true, false, false, false, true, true, true],
+  21: [false, true, false, false, false, true, false, false],
+  22: [false, false, false, false, false, false, false, false],
+  23: [false, true, false, false, false, false, false, true],
+  36: [true, true, false, true, false, true, true, true],
+  37: [false, true, true, true, true, true, true, false],
+  38: [false, false, false, true, true, false, true, false],
+  39: [false, false, false, true, false, false, false, false],
+  40: [false, true, false, true, false, true, false, true],
+  41: [false, false, false, false, false, false, false, true],
+  54: [false, true, false, true, true, true, true, true],
+  55: [true, true, true, true, false, true, false, true],
+  56: [false, true, false, true, false, false, false, true],
+  57: [false, true, false, true, false, true, false, false],
+  58: [false, true, false, false, false, false, false, false],
+  59: [false, true, false, false, false, true, false, true],
+  72: [true, true, true, true, false, true, true, true],
+  73: [true, true, true, true, true, true, false, true],
+  74: [false, true, true, true, false, true, false, false],
+  75: [true, true, false, false, false, true, false, true],
+  76: [false, false, false, true, false, true, true, true],
+  77: [false, false, false, true, true, true, false, true],
+  90: [true, true, false, true, true, true, true, true],
+  91: [false, true, true, true, true, true, true, true],
+  92: [false, true, false, true, true, true, false, false],
+  93: [false, true, false, false, false, true, true, true],
+  94: [true, true, false, true, false, false, false, true],
+  95: [false, true, true, true, false, false, false, true],
+  108: [false, true, false, true, true, true, false, true],
+  109: [false, true, false, true, false, true, true, true],
+  110: [false, true, true, true, false, true, false, true],
+  111: [true, true, false, true, false, true, false, true],
+  112: [false, true, true, true, false, true, true, true],
+  113: [true, true, false, true, true, true, false, true],
 };
 
-// Function to generate the bitmask for a given tile
-function getBitmask(grid, x, y) {
-  let bitmask = 0;
-  const directions = [
-    { dx: 0, dy: -1 }, // N
-    { dx: 1, dy: -1 }, // NE
-    { dx: 1, dy: 0 },  // E
-    { dx: 1, dy: 1 },  // SE
-    { dx: 0, dy: 1 },  // S
-    { dx: -1, dy: 1 }, // SW
-    { dx: -1, dy: 0 }, // W
-    { dx: -1, dy: -1 } // NW
-  ];
+const tileMap = {
+  "00111000": 0,
+  "00111110": 1,
+  "00001110": 2,
+  "00101000": 3,
+  "00100010": 4,
+  "00001010": 5,
+  "11111000": 18,
+  "11111111": 19,
+  "10001111": 20,
+  "11001111": 20,
+  "11110111": 20,
+  "10011111": 20,
+  "10001000": 21,
+  "00000000": 22,
+  "10000010": 23,
+  "11100000": 36,
+  "11100011": 37,
+  "10000011": 38,
+  "10100000": 39,
+  "00001000": 40,
+  // '00000010':41,
+  "11111010": 54,
+  "00010101": 55,
+  "00101010": 56,
+  "00100000": 57,
+  "10101010": 58,
+  "10111110": 59,
+  "11001001": 72,
+  "10100010": 73,
+  "10101000": 74,
+  "10000000": 75,
+  "10001010": 76,
+  "11101111": 77,
+  "11111011": 90,
+  "11101000": 91,
+  "10001011": 92,
+  "00100111": 93, // not sure about 93 and 94
+  "00111001": 94,
+  "10111111": 95,
+  "11111110": 108,
+  "10111000": 109,
+  "10001110": 110,
+  "10100011": 111,
+  "11100010": 112,
+  "10111010": 113,
+  "10101110": 126,
+  "11101010": 127,
+  "10101001": 128,
+  "11001110": 129,
+  "10111001": 130,
+  // '10111011':131,
 
+  // extra cases
+  "11100111": 37,
+  "00111111": 1,
+  "11110011": 3,
+  "11011111": 20,
+  "11000111": 38,
+  "01111000": 38,
+  '11110000': 2,
+'00001111': 2,
+'11101011':36,
+'10011000':18,
+'11001000': 37,
+'10110000':18,
+'01111110':36,
+'00001011':3,
+'10001001':37,
+'10011100':2,
+'11111001':18,
+'01100010':2,
+'10001100':36,
+'00011110':38,
+'10101111':3,
+'11111100':37,
+"00010011":36,
+"01001110":2,
+"10000101":75,
+"01101001":0,
+"10000110":36,
+"00011111":1,
+"11001100":21,
+"11100001":36,
+"00100110":18,
+"00100011":37,
+"01110010":1,
+"11000011":18,
+"00111100":37,
+"01100011":1,
+"00110010":36,
+"10000111":38,
+};
+/**
+ * '10101111':54,
+  '11111010':55,
+  '00101010':56,
+  '00100000':57,
+  '10101010':58,
+  '00000010':59,
+  '10111110':72,
+  '11101011':73,
+  '10100010':74,
+  '10101000':75,
+  '10000000':76,
+  '10001010':77,
+  '11101111':90,
+  '11111011':91,
+  '11101000':92,
+  '10001011':93,
+  '00010111':94,
+  '00011101':95,
+  '10111111':108,
+  '11111110':109,
+  '10111000':110,
+  '10001110':111,
+  '10100011':112,
+  '11100010':113,
+  '10111010':126,
+  '10101110':127,
+  '11101010':128,
+  '10101011':129,
+  '11101110':130,
+  '10111011':131,
+ */
+
+// Function to generate the bitmask for a given tile
+function getArr(grid, x, y) {
+  let resultString = "";
+  const directions = [
+    { dx: -1, dy: 0 }, // N
+    { dx: -1, dy: 1 }, // NE
+    { dx: 0, dy: 1 }, // E
+    { dx: 1, dy: 1 }, // SE
+    { dx: 1, dy: 0 }, // S
+    { dx: 1, dy: -1 }, // SW
+    { dx: 0, dy: -1 }, // W
+    { dx: -1, dy: -1 }, // NW
+  ];
+  const testArr = [];
   directions.forEach((dir, index) => {
     const nx = x + dir.dx;
     const ny = y + dir.dy;
-    if (grid[ny] === undefined || grid[ny][nx] === undefined) {
-      bitmask |= (WALL_TILE << (index * 2)); // Consider out-of-bounds as wall
+    testArr.push({
+      dir,
+      index,
+      nx,
+      ny,
+      grid:
+        grid[ny] && grid[ny][nx] ? grid[ny][nx].terrain_flags.terrain_type : -1,
+      x: x,
+      y: y,
+      current: grid[y][x].terrain_flags.terrain_type,
+    });
+    // if out of bounds, assume wall
+    if (ny < 0 || ny >= grid.length || nx < 0 || nx >= grid[ny].length) {
+      resultString += "1";
+      return;
     } else {
-      bitmask |= (grid[ny][nx].terrain_flags.terrain_type << (index * 2)); // Shift by 2 bits per tile
+      // check if terrain type is the same as current tile
+      resultString +=
+        grid[y][x].terrain_flags.terrain_type ===
+        grid[ny][nx].terrain_flags.terrain_type
+          ? "1"
+          : "0";
     }
   });
-
-  return bitmask;
+  if (tileMap[resultString] === undefined) {
+    console.log(resultString);
+  }
+  return resultString;
 }
 
 // Function to get the tile index from the bitmask
 function getTileIndex(grid, x, y) {
-  const bitmask = getBitmask(grid, x, y);
-  if (bitmask != 0 && !tileMap[bitmask] && grid[y][x].terrain_flags.terrain_type == 1) { //
-    console.log(y, x, grid[y][x].terrain_flags.terrain_type, (bitmask >>> 0).toString(2)) // Fallback to default if not defined
-  }
-  return tileMap[bitmask] || 0;
-  
+  const result = getArr(grid, x, y);
+  // console.log(result);
+  return tileMap[result];
 }
 
 // Example grid and rendering function
 
-
 export function renderGrid(grid) {
-    const gridResult = [];
+  console.log(grid);
+  const gridResult = [];
+  console.log(grid.length, grid[0].length);
   for (let y = 0; y < grid.length; y++) {
     let row = [];
     for (let x = 0; x < grid[y].length; x++) {
       const tileIndex = getTileIndex(grid, x, y);
-    row.push(tileIndex);
+      row.push(parseInt(tileIndex) || 0);
     }
     gridResult.push(row);
   }
-    return gridResult;
+  return gridResult;
 }
