@@ -1,6 +1,6 @@
 import { Scene, GameObjects } from 'phaser';
 import { GenerateDungeon, Dungeon, FloorProperties, CreateMapString, Tile, HiddenStairsType, DungeonObjectiveType, FloorLayout, DungeonGenerationInfo, FloorGenerationStatus, GenerationStepLevel, GenerationType } from 'dungeon-mystery'
-import { renderGrid } from '../utils/backgroundRender';
+import { renderGrid, renderGridBitwise } from '../utils/backgroundRender';
 export class MainMenu extends Scene
 {
     background: GameObjects.Image;
@@ -14,14 +14,14 @@ export class MainMenu extends Scene
         super('MainMenu');
         let floor_props = new FloorProperties();
 floor_props.layout = FloorLayout.LAYOUT_LARGE;
-floor_props.room_density = 5;
+floor_props.room_density = 7;
 floor_props.floor_connectivity = 15;
 floor_props.enemy_density = 4;
 floor_props.kecleon_shop_chance = 0;
 floor_props.monster_house_chance = 0;
 floor_props.maze_room_chance = 0;
 floor_props.allow_dead_ends = false;
-floor_props.room_flags.f_secondary_terrain_generation = true;
+floor_props.room_flags.f_secondary_terrain_generation = false;
 floor_props.room_flags.f_room_imperfections = false;
 floor_props.item_density = 1;
 floor_props.trap_density = 3;
@@ -33,8 +33,8 @@ floor_props.hidden_stairs_type = HiddenStairsType.HIDDEN_STAIRS_NONE;
 floor_props.hidden_stairs_spawn_chance = 0;
 
 let dungeon = new Dungeon();
-dungeon.id = 1;
-dungeon.floor = 1;
+dungeon.id = 23;
+dungeon.floor = 4;
 dungeon.nonstory_flag = false;
 dungeon.dungeon_objective = DungeonObjectiveType.OBJECTIVE_STORY;
         this.dungeonMap = GenerateDungeon(floor_props, dungeon, undefined, undefined, (generation_step_level: GenerationStepLevel,
@@ -66,8 +66,9 @@ dungeon.dungeon_objective = DungeonObjectiveType.OBJECTIVE_STORY;
         // #00FF00 = kecleon
         // #FF69B4 = hidden stairs
         // #00FFFF = secondary terrain
-        console.log(CreateMapString(this.dungeonMap))
-        let gridResult = renderGrid(this.dungeonMap);
+        // console.log(CreateMapString(this.dungeonMap))
+        let gridResult = renderGridBitwise(this.dungeonMap);
+        // let attempt = renderGridBitwise(this.dungeonMap);
         // console.log(gridResult.map((row) => 
         //     row.map((cell) => cell.toString().padStart(3, '0')).join(' ')
         // ).join('\n'));
@@ -81,39 +82,40 @@ dungeon.dungeon_objective = DungeonObjectiveType.OBJECTIVE_STORY;
                 // console.log(this.dungeonMap[i][j].terrain_flags.terrain_type, i, j, gridResult[i][j]);
                 let offsetConst = this.dungeonMap[i][j].terrain_flags.terrain_type;
                 let offsetFactor = offsetConst > 0 ? offsetConst == 2 ? 6 : 12 : 0;
-                this.add.image(i* 24 + 120, j * 24 + 70, 'test', gridResult[i][j] + offsetFactor );
+                let sprite = this.add.image(i* 30 + 120, j * 30 + 70, 'test', gridResult[i][j] + offsetFactor );
+                sprite.setScale(1.25)
             }
         }
 
 
-        this.dungeonMap.forEach((tile, index) => {
-            tile.forEach((t, i) => {
-                let x = index
-                let y = i
-                let color = '#454545';
-                if (t.spawn_or_visibility_flags.f_stairs) {
-                    color = '#240115';
-                } else if (t.spawn_or_visibility_flags.f_item) {
-                    color = '#FFD700';
-                } else if (t.spawn_or_visibility_flags.f_monster) {
-                    color = '#A60067';
-                } else if (t.spawn_or_visibility_flags.f_trap) {
-                    color = '#800080';
-                } else if (t.terrain_flags.f_in_kecleon_shop) {
-                    color = '#00FF00';
-                } else if (t.terrain_flags.terrain_type === 2) {
-                    color = '#5C7AFF'
-                } else if (t.terrain_flags.terrain_type === 1) {
-                    color = '#9C8581';
-                } 
+        // this.dungeonMap.forEach((tile, index) => {
+        //     tile.forEach((t, i) => {
+        //         let x = index
+        //         let y = i
+        //         let color = '#454545';
+        //         if (t.spawn_or_visibility_flags.f_stairs) {
+        //             color = '#240115';
+        //         } else if (t.spawn_or_visibility_flags.f_item) {
+        //             color = '#FFD700';
+        //         } else if (t.spawn_or_visibility_flags.f_monster) {
+        //             color = '#A60067';
+        //         } else if (t.spawn_or_visibility_flags.f_trap) {
+        //             color = '#800080';
+        //         } else if (t.terrain_flags.f_in_kecleon_shop) {
+        //             color = '#00FF00';
+        //         } else if (t.terrain_flags.terrain_type === 2) {
+        //             color = '#5C7AFF'
+        //         } else if (t.terrain_flags.terrain_type === 1) {
+        //             color = '#9C8581';
+        //         } 
 
-                if (this.dungenInfo.player_spawn_x === x && this.dungenInfo.player_spawn_y === y) {
-                    color = '#8D0801';
-                }
-                this.add.rectangle(x * 24 + 120, y * 24 + 70, 24, 24, parseInt(color.replace('#', '0x')), 0.5)
-                // this.add.text(x * 24 + 120, y * 24 + 70, `${y}, ${x}`, { fontFamily: 'Arial', fontSize: '8px', color: '#000000', fontStyle: 'bold' }).setOrigin(0.5);
-            });
-        });
+        //         if (this.dungenInfo.player_spawn_x === x && this.dungenInfo.player_spawn_y === y) {
+        //             color = '#8D0801';
+        //         }
+        //         this.add.rectangle(x * 30 + 120, y * 30 + 70, 30, 30, parseInt(color.replace('#', '0x')), 0.5)//.setStrokeStyle(1, 0x000000);
+        //         // this.add.text(x * 24 + 120, y * 24 + 70, `${y}, ${x}`, { fontFamily: 'Arial', fontSize: '8px', color: '#000000', fontStyle: 'bold' }).setOrigin(0.5);
+        //     });
+        // });
         
 
         this.input.once('pointerdown', () => {
