@@ -21,7 +21,16 @@ export class Boot extends Scene
             url: 'assets/tileset_71.png',
             frameConfig: { frameWidth: 24, frameHeight: 24 }
         });
-        
+        this.load.spritesheet({
+            key: 'player-idle',
+            url: 'assets/0700-Idle-Anim.png',
+            frameConfig: { frameWidth: 32, frameHeight: 48 }
+        });
+        this.load.spritesheet({
+            key: 'player-walk',
+            url: 'assets/0700-Walk-Anim.png',
+            frameConfig: { frameWidth: 32, frameHeight: 48 }
+        });
     }
 
     create ()
